@@ -741,20 +741,7 @@ prepare() {
   # get kernel version
   make prepare
 
-  # modprobed-db
-  if [ -z "$_modprobeddb" ]; then
-    plain ""
-    plain "Use modprobed db to clean config from unneeded modules?"
-    plain "Speeds up compilation considerably. Requires root."
-    plain "https://wiki.archlinux.org/index.php/Modprobed-db"
-    plain "!!!! Make sure to have a well populated db !!!!"
-    read -rp "`echo $'    > N/y : '`" CONDITIONMPDB;
-  fi
-  if [ "$CONDITIONMPDB" == "y" ] || [ "$_modprobeddb" == "true" ]; then
-    sudo modprobed-db recall
-    make localmodconfig
-  fi
-
+  # defconfig fragments
   if [ true = "$_config_fragments" ]; then
     local fragments=()
     mapfile -d '' -t fragments < <(find "$_where"/ -type f -name "*.myfrag" -print0)
@@ -782,6 +769,20 @@ prepare() {
     if [ 0 -lt "${#fragments[@]}" ]; then
       scripts/kconfig/merge_config.sh -m .config "${fragments[@]}"
     fi
+  fi
+
+  # modprobed-db
+  if [ -z "$_modprobeddb" ]; then
+    plain ""
+    plain "Use modprobed db to clean config from unneeded modules?"
+    plain "Speeds up compilation considerably. Requires root."
+    plain "https://wiki.archlinux.org/index.php/Modprobed-db"
+    plain "!!!! Make sure to have a well populated db !!!!"
+    read -rp "`echo $'    > N/y : '`" CONDITIONMPDB;
+  fi
+  if [ "$CONDITIONMPDB" == "y" ] || [ "$_modprobeddb" == "true" ]; then
+    sudo modprobed-db recall
+    make localmodconfig
   fi
 
   # menuconfig / nconfig
